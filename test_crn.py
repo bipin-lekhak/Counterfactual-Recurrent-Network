@@ -6,7 +6,8 @@ import logging
 import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
 
-from CRN_decoder_evaluate import test_CRN_decoder, test_CRN_encoder
+from CRN_decoder_evaluate import test_CRN_decoder
+from CRN_encoder_evaluate import test_CRN_encoder
 from utils.cancer_simulation import get_cancer_sim_data
 
 
