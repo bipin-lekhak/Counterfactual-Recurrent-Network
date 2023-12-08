@@ -11,7 +11,7 @@ from CRN_model import CRN_Model
 
 def fit_CRN_decoder(dataset_train, dataset_val, model_name, model_dir,
                     encoder_hyperparams_file, decoder_hyperparams_file,
-                    b_hyperparam_opt):
+                    b_hyperparam_opt, best_hyperparams=None):
     logging.info("Fitting CRN decoder.")
 
     _, length, num_covariates = dataset_train['current_covariates'].shape
@@ -66,13 +66,15 @@ def fit_CRN_decoder(dataset_train, dataset_val, model_name, model_dir,
     else:
         # The rnn_hidden_units needs to be the same as the encoder br_size.
         logging.info("Using default hyperparameters")
-        best_hyperparams = {
-            'br_size': 18,
-            'rnn_keep_prob': 0.9,
-            'fc_hidden_units': 36,
-            'batch_size': 1024,
-            'learning_rate': 0.001,
-            'rnn_hidden_units': encoder_best_hyperparams['br_size']}
+        if best_hyperparams is None:
+            best_hyperparams = {
+                'br_size': 18,
+                'rnn_keep_prob': 0.9,
+                'fc_hidden_units': 36,
+                'batch_size': 1024,
+                'learning_rate': 0.001,
+                'rnn_hidden_units': encoder_best_hyperparams['br_size']
+            }
 
         write_results_to_file(decoder_hyperparams_file, best_hyperparams)
 
@@ -205,7 +207,7 @@ def process_counterfactual_seq_test_data(test_data, data_map, states, projection
 def test_CRN_decoder(pickle_map, max_projection_horizon, projection_horizon, models_dir,
                      encoder_model_name, encoder_hyperparams_file,
                      decoder_model_name, decoder_hyperparams_file,
-                     b_decoder_hyperparm_tuning):
+                     b_decoder_hyperparm_tuning, best_hyperparams=None):
     training_data = pickle_map['training_data']
     validation_data = pickle_map['validation_data']
     scaling_data = pickle_map['scaling_data']
@@ -222,6 +224,7 @@ def test_CRN_decoder(pickle_map, max_projection_horizon, projection_horizon, mod
     fit_CRN_decoder(dataset_train=training_seq_processed, dataset_val=validation_seq_processed,
                     model_dir=models_dir,
                     model_name=decoder_model_name, encoder_hyperparams_file=encoder_hyperparams_file,
+                    best_hyperparams=best_hyperparams,
                     decoder_hyperparams_file=decoder_hyperparams_file, b_hyperparam_opt=b_decoder_hyperparm_tuning)
 
     test_data_seq_actions = pickle_map['test_data_seq']
